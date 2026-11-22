@@ -1,0 +1,301 @@
+modules:
+  # ---------------------------------------------------------------- Confluence
+  confluence:globalPage:
+    - key: decision-ledger-page
+      resource: ledger-ui
+      resolver:
+        function: resolver
+      render: native
+      title: Decision Ledger
+      route: decision-ledger
+      icon: resource:icons;ledger.svg
+  confluence:contentBylineItem:
+    - key: decision-ledger-byline
+      resource: byline-ui
+      resolver:
+        function: resolver
+      render: native
+      title: Decisions
+      tooltip: Decisions captured from this page
+      icon: resource:icons;ledger.svg
+
+  # ---------------------------------------------------------------- Jira
+  jira:issuePanel:
+    - key: decision-ledger-issue-panel
+      resource: issue-ui
+      resolver:
+        function: resolver
+      render: native
+      title: Related decisions
+      icon: resource:icons;ledger.svg
+
+  # ---------------------------------------------------------------- Events
+  trigger:
+    - key: page-events
+      function: page-trigger
+      events:
+        - avi:confluence:created:page
+        - avi:confluence:updated:page
+    - key: issue-created
+      function: issue-created-trigger
+      events:
+        - avi:jira:created:issue
+      filter:
+        ignoreSelf: true
+    - key: issue-commented
+      function: issue-commented-trigger
+      events:
+        - avi:jira:commented:issue
+      filter:
+        ignoreSelf: true
+
+  # ---------------------------------------------------------------- Rovo
+  rovo:agent:
+    - key: decision-ledger-agent
+      name: Decision Ledger
+      description: Remembers what your team decided, why, and who decided it, and
+        warns when new work contradicts a decision.
+      icon: resource:icons;ledger.svg
+      prompt: resource:agent-resource;prompt.txt
+      conversationStarters:
+        - What have we decided about this?
+        - Does this issue contradict any team decision?
+        - Record a decision from this conversation
+        - Who should weigh in before we change this decision?
+      actions:
+        - find-decisions
+        - check-conflicts
+        - record-decision
+        - issue-decisions
+        - supersede-decision
+        - decision-stakeholders
+        - scan-page-decisions
+      skills:
+        - decision-conflict-review
+      followUpPrompt: Suggest one short follow-up, such as checking a related Jira
+        issue against the ledger or recording the outcome as a decision.
+
+  rovo:skill:
+    - key: decision-conflict-review
+      source:
+        dir: skills/decision-conflict-review
+      dependencies:
+        tools:
+          - check-conflicts
+          - find-decisions
+          - decision-stakeholders
+          - supersede-decision
+
+  rovo:mcp:
+    - key: decision-ledger-mcp
+      name: Decision Ledger MCP
+      tools:
+        - find-decisions
+        - check-conflicts
+        - record-decision
+        - issue-decisions
+        - decision-stakeholders
+
+  action:
+    - key: find-decisions
+      name: Find decisions
+      function: find-decisions-fn
+      actionVerb: GET
+      description: "Search the team's decision ledger (from Confluence pages, Jira
+        comments and manual records). Use when the user asks what was decided,
+        agreed or ruled out about a topic. Returns text, rationale, status,
+        source link and id."
+      inputs:
+        query:
+          title: Topic
+          type: string
+          required: true
+          description: Keywords describing the topic, e.g. "billing database" or "Friday
+            deploys".
+        includeSuperseded:
+          title: Include superseded
+          type: boolean
+          required: false
+          description: Also return decisions that were later superseded.
+    - key: check-conflicts
+      name: Check for conflicting decisions
+      function: check-conflicts-fn
+      actionVerb: GET
+      description: "Check a proposal, plan or Jira issue against recorded team
+        decisions and report likely contradictions with reasons and confidence.
+        Pass text or an issue key; inside a Jira issue the current issue is
+        used."
+      inputs:
+        text:
+          title: Proposal text
+          type: string
+          required: false
+          description: The plan or proposal to check, e.g. "Move billing to MongoDB".
+        issueKey:
+          title: Jira issue key
+          type: string
+          required: false
+          description: Key of a Jira issue to check, e.g. PAY-42.
+    - key: record-decision
+      name: Record a decision
+      function: record-decision-fn
+      actionVerb: CREATE
+      description: "Record a new team decision in the ledger. Only use after the user
+        confirms the exact wording. Returns the new decision and any existing
+        decisions it may contradict."
+      inputs:
+        decision:
+          title: Decision
+          type: string
+          required: true
+          description: The decision as one clear sentence, e.g. "Use PostgreSQL for the
+            billing service".
+        rationale:
+          title: Rationale
+          type: string
+          required: false
+          description: Why the decision was made.
+        owner:
+          title: Owner
+          type: string
+          required: false
+          description: Name of the person accountable for the decision.
+        labels:
+          title: Labels
+          type: string
+          required: false
+          description: Comma-separated topic labels, e.g. "billing,database".
+        issueKey:
+          title: Jira issue key
+          type: string
+          required: false
+          description: Jira issue the decision belongs to, if any.
+        sourceUrl:
+          title: Source link
+          type: string
+          required: false
+          description: Link to where the decision was made.
+    - key: issue-decisions
+      name: Decisions for a Jira issue
+      function: issue-decisions-fn
+      actionVerb: GET
+      description: "List decisions related to a Jira issue (by topic, labels and
+        components) and any it may contradict. Inside a Jira issue the current
+        issue is used automatically."
+      inputs:
+        issueKey:
+          title: Jira issue key
+          type: string
+          required: false
+          description: Key of the Jira issue, e.g. PAY-42.
+    - key: supersede-decision
+      name: Supersede a decision
+      function: supersede-decision-fn
+      actionVerb: UPDATE
+      description: "Replace an existing decision with a new one: the old decision is
+        marked superseded and linked to the new one. Only use after the user
+        explicitly confirms."
+      inputs:
+        decisionId:
+          title: Decision id
+          type: string
+          required: true
+          description: The id of the decision being replaced (from find-decisions).
+        newDecision:
+          title: New decision
+          type: string
+          required: true
+          description: The new decision text.
+        rationale:
+          title: Rationale
+          type: string
+          required: false
+          description: Why the decision changed.
+    - key: decision-stakeholders
+      name: Decision stakeholders
+      function: stakeholders-fn
+      actionVerb: GET
+      description: "Find people and teams connected to a decision (source page owners,
+        contributors and their teams via the Atlassian Teamwork Graph) so the
+        user knows who to involve before changing it."
+      inputs:
+        decisionId:
+          title: Decision id
+          type: string
+          required: true
+          description: The id of the decision (from find-decisions or check-conflicts).
+    - key: scan-page-decisions
+      name: Capture decisions from a page
+      function: scan-page-fn
+      actionVerb: UPDATE
+      description: "Extract decisions from a Confluence page (decision items,
+        Decisions sections, decision tables, 'Decision:' lines) into the ledger.
+        Inside a Confluence page the current page is used."
+      inputs:
+        pageId:
+          title: Page id
+          type: string
+          required: false
+          description: Numeric Confluence page id.
+
+  # ---------------------------------------------------------------- Functions
+  function:
+    - key: resolver
+      handler: index.handler
+    - key: page-trigger
+      handler: index.onPageEvent
+    - key: issue-created-trigger
+      handler: index.onIssueCreated
+    - key: issue-commented-trigger
+      handler: index.onIssueCommented
+    - key: find-decisions-fn
+      handler: index.findDecisionsAction
+    - key: check-conflicts-fn
+      handler: index.checkConflictsAction
+    - key: record-decision-fn
+      handler: index.recordDecisionAction
+    - key: issue-decisions-fn
+      handler: index.issueDecisionsAction
+    - key: supersede-decision-fn
+      handler: index.supersedeDecisionAction
+    - key: stakeholders-fn
+      handler: index.stakeholdersAction
+    - key: scan-page-fn
+      handler: index.scanPageAction
+
+resources:
+  - key: ledger-ui
+    path: src/frontend/ledger.jsx
+  - key: byline-ui
+    path: src/frontend/byline.jsx
+  - key: issue-ui
+    path: src/frontend/issuePanel.jsx
+  - key: icons
+    path: static/icons
+  - key: agent-resource
+    path: resource/agent
+
+permissions:
+  scopes:
+    - storage:app
+    - read:page:confluence
+    - read:space:confluence
+    - read:label:confluence
+    - read:confluence-content.summary
+    - read:jira-work
+    - write:jira-work
+    - read:graph:page:confluence
+    - read:graph:user:atlassian
+    - read:graph:team:atlassian
+
+app:
+  id: ari:cloud:ecosystem::app/6ceb5d32-a817-417b-b963-247ac8ea4ac7
+  runtime:
+    name: nodejs22.x
+    memoryMB: 256
+    architecture: arm64
+  compatibility:
+    confluence:
+      required: true
+    jira:
+      required: false
