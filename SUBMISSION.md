@@ -72,7 +72,7 @@ forge, ui-kit, rovo, rovo-agent, rovo-skill, rovo-mcp, mcp, teamwork-graph, conf
 - **Teamwork Graph:** `src/twg.js` reads page owners and contributors and their teams through curated queries (`confluencePageOwners`, `confluencePageContributors`, `atlassianUserInTeams`) and shows them in **Who to involve** and in the agent's `decision-stakeholders` action.
 
 ## Links
-- Video: **<YouTube URL, public>**
-- Code: **<public repo URL>** (MIT)
+- Video: https://youtu.be/w9mOL597N-s
+- Code: https://github.com/agebreakco-prog/decision-ledger (MIT)
 - Installation link: **<link>**
 Video: https://youtu.be/w9mOL597N-s
