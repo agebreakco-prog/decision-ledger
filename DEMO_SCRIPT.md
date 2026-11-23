@@ -60,3 +60,12 @@ Record at 1920×1080 with browser zoom at 110%. Use a dark-free default theme an
 - **The trigger hasn't fired yet** (event delivery can take up to 3 minutes): use **Scan this page now** in the byline, or **Re-check** in the panel. Both run the same code path synchronously.
 - **The Rovo agent doesn't appear:** confirm Rovo is enabled on the site and the app is installed in both Confluence and Jira. Run `forge deploy` again and wait about 5 minutes for the manifest to propagate.
 - **Who to involve shows only the owner:** the site admin hasn't granted the Teamwork Graph scopes (`read:graph:*`). The app falls back to the decision owner by design. Grant the scopes and retake.
+
+## Addendum clip (30–40 s, v2 matching): reworded contradictions
+Record after deploying the v2 engine. Append it to the video, or replace the 1:40–2:00 "Comments count too" segment, so the cut stays under 3:00.
+1. **Setup (off camera):** record two decisions with the Jira panel's **Record a decision** form or **Check a proposal**: *"Enable two-factor authentication for all admin accounts"* and *"Payment gateway timeout is 30 seconds"*.
+2. **Screen:** create Jira issue *"Turn off 2FA for admin accounts during the SSO migration"*, then open the **Related decisions** panel.
+   **Voice-over:** "Different words, same clash. 'Turn off 2FA' is read as 'disable MFA', and the flag says exactly how it matched."
+3. **Screen:** in Confluence **Check a proposal**, paste *"Raise the payment gateway timeout to 60s"*.
+   **Voice-over:** "Numbers count too. 30 seconds versus 60 is flagged. A value inside a limit, such as latency of 240 ms under a 300 ms cap, is not."
+4. Don't show Rovo chat unless it has actually been run on a Rovo-enabled site.
