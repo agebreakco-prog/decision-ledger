@@ -1,0 +1,32 @@
+HP-104  CAUGHT      Bump gateway timeout. Raise the payment gateway timeout to 60s; Adyen sandbox calls keep failing at the limit.
+         -> "Payment gateway timeout is 30 seconds" (Payments platform: architecture decisions, 2026-03-02) confidence 0.74
+            why: Decision sets 30 seconds; this text says 60s. Same subject: payment gateway timeout.
+HP-109  CAUGHT      Turn off 2FA for admin accounts during the Okta SSO migration
+         -> "Enable two-factor authentication for all admin accounts" (Payments platform: architecture decisions, 2026-01-26) confidence 0.92
+            why: Decision is in favour ("Enable two-factor authentication for all admin accounts"); this text argues against it.
+            why: Opposing terms on the same topic: "enable…" vs "disable…".
+            why: Read "turn off" as "disable", "2fa" as "mfa", "two-factor authentication" as "mfa".
+HP-112  CAUGHT      Refund hotfix: deploy to production on Friday; no need to wait for the Monday window
+         -> "No production deploys on Fridays" (Payments platform: architecture decisions, 2026-01-19) confidence 0.8
+            why: Decision rules this out ("No production deploys on Fridays"); this text proposes doing it ("deploy to production on Friday").
+HP-115  CAUGHT      Lower the coverage gate to 70% for the legacy ledger module so the build goes green
+         -> "Code coverage must stay at or above 80% on the ledger service" (HP-57, 2026-07-22) confidence 0.64
+            why: Decision requires at least 80%; this text proposes 70%, below the minimum. Same subject: coverage ledger.
+HP-117  CAUGHT      Switch to MongoDB for the ledger service so balances can be stored as documents
+         -> "Use PostgreSQL for the ledger service" (Payments platform: architecture decisions, 2026-01-12) confidence 0.9
+            why: Decision chose "postgresql" for ledger service; this proposes "mongodb" instead.
+HP-121  CAUGHT      Add a REST endpoint for partners to list payouts
+         -> "GraphQL over REST for the partner API" (Payments platform: architecture decisions, 2026-04-13) confidence 0.75
+            why: Decision explicitly ruled out "rest".
+HP-124  CAUGHT      Send webhooks synchronously from the payment request handler
+         -> "Webhooks are delivered asynchronously via the outbox queue" (Payments platform: architecture decisions, 2026-03-16) confidence 0.67
+            why: Opposing terms on the same topic: "sync…" vs "async…".
+            why: Read "send" as "deliver", "delivered" as "deliver".
+HP-126  quiet (ok)  Use Postgres for the ledger service read replica
+HP-127  quiet (ok)  Add an index on the Postgres balances table
+HP-129  quiet (ok)  Checkout p95 latency is now 240ms after the cache change, document it
+HP-131  quiet (ok)  Write the Terraform module for the new reporting bucket
+HP-133  quiet (ok)  Update the SendGrid receipt template with the new logo
+
+Decisions: 18. Incoming issues: 12 (7 contradict a decision).
+Caught 7/7, missed 0, false flags 0.

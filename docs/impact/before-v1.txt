@@ -1,0 +1,21 @@
+HP-104  MISSED      Bump gateway timeout. Raise the payment gateway timeout to 60s; Adyen sandbox calls keep failing at the limit.
+HP-109  MISSED      Turn off 2FA for admin accounts during the Okta SSO migration
+HP-112  MISSED      Refund hotfix: deploy to production on Friday; no need to wait for the Monday window
+HP-115  MISSED      Lower the coverage gate to 70% for the legacy ledger module so the build goes green
+HP-117  CAUGHT      Switch to MongoDB for the ledger service so balances can be stored as documents
+         -> "Use PostgreSQL for the ledger service" (Payments platform: architecture decisions, 2026-01-12) confidence 0.9
+            why: Decision chose "postgresql" for ledger service; this proposes "mongodb" instead.
+HP-121  CAUGHT      Add a REST endpoint for partners to list payouts
+         -> "GraphQL over REST for the partner API" (Payments platform: architecture decisions, 2026-04-13) confidence 0.75
+            why: Decision explicitly ruled out "rest".
+HP-124  MISSED      Send webhooks synchronously from the payment request handler
+HP-126  FALSE FLAG  Use Postgres for the ledger service read replica
+         -> "Use PostgreSQL for the ledger service" (Payments platform: architecture decisions, 2026-01-12) confidence 0.9
+            why: Decision chose "postgresql" for ledger service; this proposes "postgres" instead.
+HP-127  quiet (ok)  Add an index on the Postgres balances table
+HP-129  quiet (ok)  Checkout p95 latency is now 240ms after the cache change, document it
+HP-131  quiet (ok)  Write the Terraform module for the new reporting bucket
+HP-133  quiet (ok)  Update the SendGrid receipt template with the new logo
+
+Decisions: 18. Incoming issues: 12 (7 contradict a decision).
+Caught 2/7, missed 5, false flags 1.
