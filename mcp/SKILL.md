@@ -23,4 +23,4 @@ Atlassian Administration > Apps > Sites > Connected apps):
 3. To change a decision, call `decision-stakeholders` and tell the user who to consult; the change itself is made in Rovo or the Confluence "Decision Ledger" page.
 4. After a meeting or discussion that reached a conclusion, offer to `record-decision` with a one-sentence decision and its rationale.
 
-Results are rule-based (keyword/TF-IDF + stance analysis); describe conflicts as "possible" and show the confidence.
+Results are rule-based (TF-IDF over normalised terms + stance, choice, antonym and number/threshold rules); describe conflicts as "possible" and show the confidence.
